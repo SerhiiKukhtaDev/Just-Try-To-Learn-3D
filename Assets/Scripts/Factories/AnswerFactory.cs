@@ -3,12 +3,12 @@ using System.Linq;
 using ScriptableObjects.Answers.Base;
 using UnityEngine;
 using Views;
+using Views.Base;
 
 namespace Factories
 {
     public class AnswerFactory : MonoBehaviour, IAnswerFactory
     {
-        [SerializeField] Transform parent;
         private List<View> _views;
 
         public void LoadViews(string path)
@@ -16,18 +16,19 @@ namespace Factories
             _views = Resources.LoadAll<View>(path).ToList();
         }
         
-        public T1 CreateWithRenderData<T1, T>(T data) where T : IContainQuestionData where T1 : IView
+        public View CreateWithRenderData(IContainQuestionData data, Transform parent)
         {
-            var elem = _views.First(view => view.GetComponent<T1>() != null);
-            var rendered = Instantiate(elem, parent).GetComponent<T1>();
-
+            var elem = _views.First();
+            var rendered = Instantiate(elem, parent);
+            
             rendered.Render(data);
+            
             return rendered;
         }
     }
 
     interface IAnswerFactory
     {
-        T1 CreateWithRenderData<T1, T>(T data) where T : IContainQuestionData where T1 : IView;
+        View CreateWithRenderData(IContainQuestionData data, Transform parent);
     }
 }

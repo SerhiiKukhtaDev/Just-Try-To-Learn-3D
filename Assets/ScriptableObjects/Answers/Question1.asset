@@ -18,6 +18,7 @@ MonoBehaviour:
   - Nice
   - Fine
   - Bad
+  - Cool
   rightAnswer: Bad
   difficulty: 0
   timeToAnswer: 10
