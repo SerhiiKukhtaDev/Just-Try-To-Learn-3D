@@ -1,73 +1,110 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using Factories;
+using Questions;
 using UnityEngine;
-using Zenject;
+using Utils;
+using Views.Base;
 
 public class QuestionSwapper : MonoBehaviour
 {
-    [SerializeField] private Transform parent;
-    [SerializeField] private ScriptableObjects.Answers.Base.Question question;
-    
-    private List<ItemScroll> _questions;
-    private Vector3 _currentQuestionPosition;
-    private float _questionHeight;
-    private IAnswerFactory _factory;
-    
-    [Inject]
-    private void Construct(IAnswerFactory factory)
+    [SerializeField] private QuestionCreator questionCreator;
+
+    [SerializeField] private float time = 0.5f;
+    [SerializeField] private Ease ease;
+
+    public event Action DownSwiped;
+    public event Action UpSwiped;
+
+    private float _lenght;
+    private bool _canSwipe = true;
+    private List<ItemScroll> _scrolls;
+
+    private View _currentView;
+
+    private void Awake()
     {
-        _factory = factory;
+        _scrolls = new List<ItemScroll>();
     }
-    
 
     private void Start()
     {
-        _questionHeight = Screen.height;
-        _questions = new List<ItemScroll>();
+        _lenght = GetComponentInParent<Canvas>().GetCanvasHeightWithScaleFactor();
+    }
 
-        _factory.CreateWithRenderData(question, parent);
+    private void OnEnable()
+    {
+        questionCreator.QuestionCreated += OnQuestionCreated;
+        questionCreator.CurrentViewChanged += OnViewChanged;
+        questionCreator.ViewDestroyed += OnViewDestroyed;
+    }
+
+    private void OnViewDestroyed(View obj)
+    {
+        _scrolls.Remove(obj.GetComponent<ItemScroll>());
+    }
+
+    private void OnViewChanged(View obj)
+    {
+        _currentView = obj;
+    }
+
+    private void OnDisable()
+    {
+        questionCreator.QuestionCreated -= OnQuestionCreated;
+        questionCreator.CurrentViewChanged -= OnViewChanged;
+        questionCreator.ViewDestroyed -= OnViewDestroyed;
+    }
+
+    public void OnSwipeUp()
+    {
+        if(questionCreator.CurrentWatchableQuestion == 0) return;
         
-        /*var firstQuestion = Instantiate(template, parent);
-        _questions.Add(firstQuestion);
-        _currentQuestionPosition = firstQuestion.transform.position;
+        if(!_canSwipe) return;
+
+        DoSwipeUp();
+
+        StartCoroutine(WaitForSwipeEnd(time));
+    }
+
+    public void OnSwipeDown()
+    {
+        if(!_currentView.QuestionAnswered || _currentView.IsLastQuestion) return;
+
+        if(!_canSwipe) return;
+
+        DoSwipeDown();
         
-        CreateNextQuestion(_currentQuestionPosition);*/
+        StartCoroutine(WaitForSwipeEnd(time));
     }
 
-    public void MoveDown()
+    private void DoSwipeUp()
     {
-        foreach (var question in _questions)
-        {
-            question.MoveDown(_questionHeight, 0.5f, Ease.Linear);
-        }
+        _canSwipe = false;
+
+        _scrolls.ForEach(s => s.MoveUp(_lenght, time, ease));
+        
+        UpSwiped?.Invoke();
     }
 
-    public void MoveUp()
+    private void DoSwipeDown()
     {
-        foreach (var question in _questions)
-        {
-            question.MoveUp(_questionHeight, 1f, Ease.Linear);
-        }
+        DownSwiped?.Invoke();
+        
+        _canSwipe = false;
+        _scrolls.ForEach(s => s.MoveDown(_lenght, time, ease));
     }
 
-    private void CreateNextQuestion(Vector3 position)
+    private void OnQuestionCreated(View questionView)
     {
-        /*var question = Instantiate(template, parent);
-        question.MoveEnd += OnMoveEnd;
-
-        _questions.Add(question);
-        SetPositionByPreviousWith(question.transform, position, _questionHeight);*/
+        _scrolls.Add(questionView.GetComponent<ItemScroll>());
     }
 
-    private void OnMoveEnd(Vector3 position, ItemScroll itemScroll)
+    private IEnumerator WaitForSwipeEnd(float swipeTime)
     {
-        CreateNextQuestion(position);
-        itemScroll.MoveEnd -= OnMoveEnd;
-    }
+        yield return new WaitForSeconds(swipeTime);
 
-    private void SetPositionByPreviousWith(Transform target, Vector3 previousPosition, float delta)
-    {
-        target.position = new Vector3(previousPosition.x, previousPosition.y - delta, previousPosition.z);
+        _canSwipe = true;
     }
 }

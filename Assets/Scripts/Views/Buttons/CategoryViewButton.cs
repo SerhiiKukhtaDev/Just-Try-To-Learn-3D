@@ -1,6 +1,5 @@
 using System;
 using Models;
-using Renderers;
 using Renderers.Settings;
 using UnityEngine;
 using UnityEngine.UI;

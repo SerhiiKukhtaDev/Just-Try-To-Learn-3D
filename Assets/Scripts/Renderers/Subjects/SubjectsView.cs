@@ -1,7 +1,6 @@
 using Models;
-using Renderers.Buttons;
 
-namespace Renderers
+namespace Renderers.Subjects
 {
     public class SubjectsView : CategoryView<SubjectButton, Subject, Class>
     {
