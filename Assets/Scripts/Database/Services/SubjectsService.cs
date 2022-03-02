@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Models;
 
 namespace Database.Services
@@ -8,6 +9,12 @@ namespace Database.Services
         List<Subject> Subjects { get; }
 
         void SetSubjects(List<Subject> subjects);
+
+        List<Question> GetAllByAllSubjects();
+
+        List<Question> GetAllByAllClasses(Subject subject);
+
+        List<Question> GetAllByAllThemes(Class @class);
     }
 
     public class SubjectsService : ISubjectsService
@@ -27,6 +34,42 @@ namespace Database.Services
         }
 
         public List<Subject> Subjects => _subjects;
+
+        public List<Question> GetAllByAllSubjects()
+        {
+            List<Question> questions = new List<Question>();
+
+            foreach (var theme in Subjects.SelectMany(subject => subject.Items.SelectMany(@class => @class.Items)))
+            {
+                questions.AddRange(theme.Items);
+            }
+
+            return questions;
+        }
+
+        public List<Question> GetAllByAllClasses(Subject subject)
+        {
+            List<Question> questions = new List<Question>();
+            
+            foreach (var theme in subject.Items.SelectMany(@class => @class.Items))
+            {
+                questions.AddRange(theme.Items);
+            }
+
+            return questions;
+        }
+
+        public List<Question> GetAllByAllThemes(Class @class)
+        {
+            List<Question> questions = new List<Question>();
+
+            foreach (var theme in @class.Items)
+            {
+                questions.AddRange(theme.Items);
+            }
+
+            return questions;
+        }
     }
     
     

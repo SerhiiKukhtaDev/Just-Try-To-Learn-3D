@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
+using Models;
 using UnityEngine;
 using UnityEngine.UI;
 using Views.Answers.Base;
@@ -14,8 +16,15 @@ namespace Views.Base
         [SerializeField] private Transform answerParent;
         [SerializeField] private TAnswerView template;
         [SerializeField] private DifficultyView difficultyView;
-        [SerializeField] private Image background;
-        [SerializeField] private float animationDuration = 0.2f;
+        [SerializeField] private DissolveBackgroundView dissolveView;
+        [SerializeField] private float animationTime;
+
+        private List<IReactOnAnswer> _reactOnAnswers;
+
+        private void Start()
+        {
+            _reactOnAnswers = new List<IReactOnAnswer> {dissolveView};
+        }
 
         public override event Action<View, bool> AnswerButtonClicked; 
 
@@ -23,23 +32,31 @@ namespace Views.Base
         {
             questionTitle.text = question.Name;
             difficultyView.Render(question.Difficulty);
+            dissolveView.Render(1);
             
-            foreach (var answer in question.Answers)
-            {
-                var item = Instantiate(template, answerParent);
-                item.Render(answer);
+            question.GenerateRandomPositions();
 
-                item.AnswerButtonClicked += OnAnswerButtonClick;
-                
+            foreach (var item in question.Answers.Select(RenderItem))
+            {
                 AnswerButtons.Add(item);
             }
+        }
+
+        protected virtual TAnswerView RenderItem(Answer answer)
+        {
+            var item = Instantiate(template, answerParent);
+            item.Render(answer);
+
+            item.AnswerButtonClicked += OnAnswerButtonClick;
+
+            return item;
         }
 
         private void OnAnswerButtonClick(AnswerView answerView, bool isRightAnswer)
         {
             AnswerButtonClicked?.Invoke(this, isRightAnswer);
 
-            background.DOFillAmount(1, 1f);
+            _reactOnAnswers.ForEach(r => r.React(isRightAnswer, animationTime));
             foreach (var viewAnswerButton in AnswerButtons) viewAnswerButton.OnAnswer();
 
             answerView.AnswerButtonClicked -= OnAnswerButtonClick;
@@ -67,5 +84,10 @@ namespace Views.Base
         }
         
         public bool IsLastQuestion { get; private set; }
+    }
+
+    public interface IReactOnAnswer
+    {
+        public void React(bool isRightAnswer, float time);
     }
 }

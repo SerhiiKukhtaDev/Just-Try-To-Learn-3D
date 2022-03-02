@@ -1,6 +1,7 @@
 using System;
 using DG.Tweening;
 using Lean.Gui;
+using Models;
 using UnityEngine;
 using UnityEngine.Events;
 using Views.Base;
@@ -12,10 +13,12 @@ namespace Questions
         [SerializeField] private QuestionCreator questionCreator;
         [SerializeField] private LeanButton endTestButton;
         [SerializeField] private float endTestButtonAppearTime = 0.5f;
-        
+
+        public UnityEvent<ProgressInfo> questionAnswered;
         public UnityEvent<TestResult> lastQuestionAnswered;
 
         private int _rightAnswers;
+        private int _allAnswersCount;
 
         private void Start()
         {
@@ -48,8 +51,11 @@ namespace Questions
         private void AnswerButtonClicked(View view, bool isRightAnswer)
         {
             view.AnswerButtonClicked -= AnswerButtonClicked;
-            
+
+            _allAnswersCount++;
             view.SetAnswered();
+            
+            questionAnswered?.Invoke(new ProgressInfo(questionCreator.AllQuestionsCount, _allAnswersCount));
 
             if (isRightAnswer)
                 _rightAnswers++;
@@ -62,15 +68,17 @@ namespace Questions
         }
     }
 
-    public class TestResult
+    [Serializable]
+    public class ProgressInfo
     {
-        public int AllAnswers { get; }
-        public int RightAnswers { get; }
+        public int AllQuestionsCount { get; }
 
-        public TestResult(int allAnswers, int rightAnswers)
+        public int AnsweredQuestions { get; }
+
+        public ProgressInfo(int allQuestionsCount, int answeredQuestions)
         {
-            AllAnswers = allAnswers;
-            RightAnswers = rightAnswers;
+            AllQuestionsCount = allQuestionsCount;
+            AnsweredQuestions = answeredQuestions;
         }
     }
 }

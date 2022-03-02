@@ -17,7 +17,10 @@ namespace Menu
         [SerializeField] private ThemeView themesView;
         
         private ISubjectsService _subjectsService;
-        
+
+        public Subject CurrentSubject { get; private set; }
+        public Class CurrentClass { get; private set; }
+
         private void Start()
         {
             menuView.Show();
@@ -62,12 +65,16 @@ namespace Menu
 
         private void OnClassButtonClicked(Class obj)
         {
+            CurrentClass = obj;
+            
             classesView.Hide();
             themesView.ShowWithItems(obj.Items);
         }
 
         private void OnSubjectButtonClicked(Subject obj)
         {
+            CurrentSubject = obj;
+            
             subjectsView.Hide();
             classesView.ShowWithItems(obj.Items);
         }

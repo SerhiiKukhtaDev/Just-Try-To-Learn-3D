@@ -4,6 +4,7 @@ using Lean.Gui;
 using Models;
 using Renderers.Settings;
 using UnityEngine;
+using UnityEngine.UI;
 using Views.Buttons;
 
 namespace Renderers
@@ -16,6 +17,9 @@ namespace Renderers
         [SerializeField] private SkyBoxView skyBoxView;
         [SerializeField] protected TButtonView template;
         [SerializeField] private LeanButton returnButton;
+        
+        [SerializeField] private LeanButton LoadByWholeButton;
+        [SerializeField] private Image LoadByWholeButtonCap;
 
         protected List<TItem> Items;
         private List<TButtonView> _renderedItems;
@@ -23,6 +27,7 @@ namespace Renderers
         public event Action<CategoryView<TButtonView, TItem, TChild>> RenderRequested;
         public event Action<TItem> MoveToNextCategoryRequested;
         public event Action ReturnRequested;
+        public event Action LoadByWholeCategoryRequested;
 
         private void Awake()
         {
@@ -33,6 +38,12 @@ namespace Renderers
         {
             RenderRequested?.Invoke(this);
             returnButton.OnClick.AddListener(ReturnBackRequested);
+            LoadByWholeButton.OnClick.AddListener(OnLoadByWholeCategoryRequested);
+        }
+
+        private void OnLoadByWholeCategoryRequested()
+        {
+            LoadByWholeCategoryRequested?.Invoke();
         }
 
         private void OnDisable()
@@ -43,6 +54,8 @@ namespace Renderers
                 Destroy(item.gameObject);
             }
             
+            returnButton.OnClick.RemoveListener(ReturnBackRequested);
+            LoadByWholeButton.OnClick.RemoveListener(OnLoadByWholeCategoryRequested);
             _renderedItems.Clear();
         }
 
@@ -59,6 +72,7 @@ namespace Renderers
 
         private void RenderButtons(ButtonSetting buttonSetting)
         {
+            LoadByWholeButtonCap.color = buttonSetting.ButtonColor;
             Items.ForEach(item => RenderButton(item, buttonSetting));
         }
 

@@ -1,7 +1,8 @@
+using DG.Tweening;
 using ScriptableObjects;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using Views.Base;
 
 namespace Views
 {
@@ -9,11 +10,16 @@ namespace Views
     {
         [SerializeField] private TMP_Text text;
         [SerializeField] private DifficultyColor difficultyColor;
+        
+        private ColorByDifficulty _color;
 
         public void Render(string type)
         {
             text.text = type.ToUpper();
-            text.color = difficultyColor.GetColorByDifficulty(type);
+
+            _color = difficultyColor.GetColorByDifficulty(type);
+            
+            text.color = _color.Color;
         }
     }
 }

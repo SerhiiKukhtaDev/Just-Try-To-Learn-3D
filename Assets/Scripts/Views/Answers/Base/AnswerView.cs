@@ -38,6 +38,8 @@ namespace Views.Answers.Base
         public void OnAnswer()
         {
             answerButton.interactable = false;
+            answerButton.enabled = false;
+            
             cap.DOColor(IsRightAnswer ? rightAnswerColor : wrongAnswerColor, fillTime);
         }
     }

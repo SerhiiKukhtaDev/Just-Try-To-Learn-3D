@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Database.Constants;
 using Models;
 using UnityEngine;
 using Views.Base;
@@ -20,14 +21,14 @@ namespace Factories
         {
             foreach (var questionAnswer in question.Answers)
             {
-                if (questionAnswer.AnswerText.Length > 12)
-                {
-                    return CreateLong(question, parent);
-                }
-
-                if (questionAnswer.AnswerText.Length > 50)
+                if (questionAnswer.AnswerText.Length > AnswerLenghtConstants.OverflowedSize)
                 {
                     return CreateOverflowed(question, parent);
+                }
+                
+                if (questionAnswer.AnswerText.Length > AnswerLenghtConstants.LongSize)
+                {
+                    return CreateLong(question, parent);
                 }
             }
 

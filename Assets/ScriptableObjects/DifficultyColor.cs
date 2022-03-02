@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using Views.Base;
 
 namespace ScriptableObjects
 {
@@ -8,10 +9,10 @@ namespace ScriptableObjects
     public class DifficultyColor : ScriptableObject
     {
         [SerializeField] private ColorByDifficulty[] difficulties = new ColorByDifficulty[4];
-
-        public Color GetColorByDifficulty(string difficulty)
+        
+        public ColorByDifficulty GetColorByDifficulty(string difficulty)
         {
-            var color = difficulties.FirstOrDefault(d => d.Difficulty == difficulty).Color;
+            var color = difficulties.FirstOrDefault(d => d.Difficulty == difficulty);
 
             if (color == null)
                 throw new Exception("Can't find color to given difficulty type");
@@ -25,9 +26,15 @@ namespace ScriptableObjects
     {
         [SerializeField] private string difficulty;
         [SerializeField] private Color color;
+        [SerializeField] private Color wrongAnswerColor;
+        [SerializeField] private Color rightAnswerColor;
 
         public string Difficulty => difficulty;
 
         public Color Color => color;
+
+        public Color WrongAnswerColor => wrongAnswerColor;
+
+        public Color RightAnswerColor => rightAnswerColor;
     }
 }
