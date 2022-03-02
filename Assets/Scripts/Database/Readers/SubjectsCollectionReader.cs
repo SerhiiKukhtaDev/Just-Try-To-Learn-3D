@@ -6,6 +6,7 @@ using Database.Utils;
 using Models;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using Utils.Comparers;
 
 namespace Database.Readers
 {
@@ -25,10 +26,14 @@ namespace Database.Readers
 
             RemoveAllEmptyThemes(subjects);
             RemoveAllEmptyClasses(subjects);
-            RemoveAllEmptySubjects(subjects);
+            RemoveAllEmptySubjects(ref subjects);
+            
+            subjects.ForEach(s => s.Items.Sort(new ClassComparer()));
 
             return subjects;
         }
+        
+        
 
         private async Task<List<Subject>> ReadSubjectsAsync()
         {
@@ -51,9 +56,9 @@ namespace Database.Readers
             roots.ForEach(sub => ReaderHelpers.RemoveAllEmptyItems<Class, Theme, Subject>(sub.Items, sub));
         }
 
-        private void RemoveAllEmptySubjects(List<Subject> subjects)
+        private void RemoveAllEmptySubjects(ref List<Subject> subjects)
         {
-            subjects.ForEach(sub => sub.Items = sub.Items.Where(cl => cl.Items.Count > 0).ToList());
+            subjects = subjects.Where(subject => subject.Items.Count > 0).ToList();
         }
     }
 }

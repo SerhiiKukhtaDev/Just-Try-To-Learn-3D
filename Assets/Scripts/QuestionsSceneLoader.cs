@@ -56,7 +56,8 @@ public class QuestionsSceneLoader : MonoBehaviour
     {
         loadImageView.Show(showTime, () =>
         {
-            _questionsService.SetQuestionsToLoad(_subjectsService.GetAllByAllThemes(viewSwitcher.CurrentClass));
+            _questionsService.SetQuestionsToLoad(_subjectsService.GetAllByAllThemes(viewSwitcher.CurrentClass),
+                $"{viewSwitcher.CurrentSubject.Name}. {viewSwitcher.CurrentClass.Name}. Усі теми");
             loadImageView.HideText(textHideTime, LoadLevelScene);
         });
     }
@@ -65,7 +66,8 @@ public class QuestionsSceneLoader : MonoBehaviour
     {
         loadImageView.Show(showTime, () =>
         {
-            _questionsService.SetQuestionsToLoad(_subjectsService.GetAllByAllClasses(viewSwitcher.CurrentSubject));
+            _questionsService.SetQuestionsToLoad(_subjectsService.GetAllByAllClasses(viewSwitcher.CurrentSubject),
+                $"{viewSwitcher.CurrentSubject.Name}. Усі класи, всі теми");
             loadImageView.HideText(textHideTime, LoadLevelScene);
         });
     }
@@ -74,7 +76,8 @@ public class QuestionsSceneLoader : MonoBehaviour
     {
         loadImageView.Show(showTime, () =>
         {
-            _questionsService.SetQuestionsToLoad(_subjectsService.GetAllByAllSubjects());
+            _questionsService.SetQuestionsToLoad(_subjectsService.GetAllByAllSubjects(), 
+                "Усі предмети, всі класи, всі теми");
             loadImageView.HideText(textHideTime, LoadLevelScene);
         });
     }
@@ -83,7 +86,8 @@ public class QuestionsSceneLoader : MonoBehaviour
     {
         loadImageView.Show(showTime, () =>
         {
-            _questionsService.SetQuestionsToLoad(theme.Items);
+            _questionsService.SetQuestionsToLoad(theme.Items,
+            $"{viewSwitcher.CurrentSubject.Name}. {viewSwitcher.CurrentClass.Name}. {theme.Name}");
             loadImageView.HideText(textHideTime, LoadLevelScene);
         });
     }

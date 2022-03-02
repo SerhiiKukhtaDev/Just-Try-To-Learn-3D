@@ -85,7 +85,7 @@ MonoBehaviour:
   Data:
     Duration: 0
     Target: {fileID: 8300000, guid: 3cdf6946b7f8a1549ab339405d1c0146, type: 3}
-    Volume: 0.1
+    Volume: 1
 --- !u!1 &1232151622802836010
 GameObject:
   m_ObjectHideFlags: 0
@@ -449,7 +449,7 @@ MonoBehaviour:
   Data:
     Duration: 0
     Target: {fileID: 8300000, guid: 622df6012652bdb498c7ec99b1b8a532, type: 3}
-    Volume: 0.1
+    Volume: 1
 --- !u!114 &4270803405848350255
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -8,6 +8,7 @@ namespace Views
 {
     public class ResultTestView : MonoBehaviour
     {
+        [SerializeField] private Text pathText;
         [SerializeField] private Text allQuestionsCount;
         [SerializeField] private Text rightAnswersCount;
         [SerializeField] private Image bar;
@@ -17,10 +18,14 @@ namespace Views
         {
             allQuestionsCount.text = 0.ToString();
             rightAnswersCount.text = 0.ToString();
+
+            pathText.text = string.Empty;
         }
 
-        public void Show(TestResult testResult)
+        public void Show(TestResult testResult, string subjectPath)
         {
+            pathText.text = subjectPath;
+            
             allQuestionsCount.DOCounter(0, testResult.AllAnswers, countTime).SetAutoKill();
             rightAnswersCount.DOCounter(0, testResult.RightAnswers, countTime).SetAutoKill();
             bar.DOFillAmount((float)testResult.RightAnswers / testResult.AllAnswers, countTime);
