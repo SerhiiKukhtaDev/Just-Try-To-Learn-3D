@@ -1,7 +1,6 @@
 using System;
 using DG.Tweening;
 using Lean.Gui;
-using Models;
 using UnityEngine;
 using UnityEngine.Events;
 using Views.Base;
@@ -10,7 +9,7 @@ namespace Questions
 {
     public class AnswerChecker : MonoBehaviour
     {
-        [SerializeField] private QuestionCreator questionCreator;
+        [SerializeField] private QuestionViewCreator questionViewCreator;
         [SerializeField] private LeanButton endTestButton;
         [SerializeField] private float endTestButtonAppearTime = 0.5f;
 
@@ -27,35 +26,34 @@ namespace Questions
 
         private void OnEnable()
         {
-            questionCreator.QuestionCreated += OnQuestionCreated;
+            questionViewCreator.ViewCreated += OnQuestionCreated;
             endTestButton.OnClick.AddListener(OnEndButtonClicked);
-        }
-
-        private void OnEndButtonClicked()
-        {
-            lastQuestionAnswered.Invoke(new TestResult(questionCreator.AllQuestionsCount, _rightAnswers));
-            endTestButton.gameObject.SetActive(false);
         }
 
         private void OnDisable()
         {
-            questionCreator.QuestionCreated -= OnQuestionCreated;
+            questionViewCreator.ViewCreated -= OnQuestionCreated;
             endTestButton.OnClick.RemoveListener(OnEndButtonClicked);
+        }
+
+        private void OnEndButtonClicked()
+        {
+            lastQuestionAnswered.Invoke(new TestResult(questionViewCreator.QuestionsCount(), _rightAnswers));
+            endTestButton.gameObject.SetActive(false);
         }
 
         private void OnQuestionCreated(View obj)
         {
-            obj.AnswerButtonClicked += AnswerButtonClicked;
+            obj.Answered += Answered;
         }
 
-        private void AnswerButtonClicked(View view, bool isRightAnswer)
+        private void Answered(View view, bool isRightAnswer)
         {
-            view.AnswerButtonClicked -= AnswerButtonClicked;
+            view.Answered -= Answered;
 
             _allAnswersCount++;
-            view.SetAnswered();
-            
-            questionAnswered?.Invoke(new ProgressInfo(questionCreator.AllQuestionsCount, _allAnswersCount));
+
+            questionAnswered?.Invoke(new ProgressInfo(questionViewCreator.QuestionsCount(), _allAnswersCount));
 
             if (isRightAnswer)
                 _rightAnswers++;

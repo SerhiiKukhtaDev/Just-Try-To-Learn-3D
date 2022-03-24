@@ -53,6 +53,5 @@ namespace Renderers
             
             view.Render(theme);
         }
-        
     }
 }

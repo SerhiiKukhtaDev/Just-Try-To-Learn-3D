@@ -13,6 +13,7 @@ namespace Views.Base
     public abstract class View<TAnswerView> : View where TAnswerView : AnswerView
     {
         [SerializeField] private Text questionTitle;
+        [SerializeField] private TimeLeftView timeCounterView;
         [SerializeField] private Transform answerParent;
         [SerializeField] private TAnswerView template;
         [SerializeField] private DifficultyView difficultyView;
@@ -20,19 +21,21 @@ namespace Views.Base
         [SerializeField] private float animationTime;
 
         private List<IReactOnAnswer> _reactOnAnswers;
+        private bool _isAlreadyEntered;
 
         private void Start()
         {
             _reactOnAnswers = new List<IReactOnAnswer> {dissolveView};
         }
 
-        public override event Action<View, bool> AnswerButtonClicked; 
+        public override event Action<View, bool> Answered; 
 
         public override void Render(Question question)
         {
             questionTitle.text = question.Name;
             difficultyView.Render(question.Difficulty);
             dissolveView.Render(1);
+            timeCounterView.Render(difficultyView.Color, question.TimeToAnswer);
             
             question.GenerateRandomPositions();
 
@@ -54,12 +57,28 @@ namespace Views.Base
 
         private void OnAnswerButtonClick(AnswerView answerView, bool isRightAnswer)
         {
-            AnswerButtonClicked?.Invoke(this, isRightAnswer);
+            Answer(isRightAnswer);
+
+            answerView.AnswerButtonClicked -= OnAnswerButtonClick;
+        }
+
+        private void Answer(bool isRightAnswer)
+        {
+            QuestionAnswered = true;
+            
+            Answered?.Invoke(this, isRightAnswer);
 
             _reactOnAnswers.ForEach(r => r.React(isRightAnswer, animationTime));
             foreach (var viewAnswerButton in AnswerButtons) viewAnswerButton.OnAnswer();
+            timeCounterView.EndCount();
+        }
 
-            answerView.AnswerButtonClicked -= OnAnswerButtonClick;
+        public override void Enter()
+        {
+            if(_isAlreadyEntered) return;
+            
+            timeCounterView.StartCount(() => Answer(false));
+            _isAlreadyEntered = true;
         }
     }
 
@@ -67,16 +86,13 @@ namespace Views.Base
     {
         public abstract void Render(Question question);
 
-        public List<AnswerView> AnswerButtons { get; } = new List<AnswerView>();
-        
-        public abstract event Action<View, bool> AnswerButtonClicked;
+        public abstract void Enter();
 
-        public void SetAnswered()
-        {
-            QuestionAnswered = true;
-        }
+        protected List<AnswerView> AnswerButtons { get; } = new List<AnswerView>();
         
-        public bool QuestionAnswered { get; private set; }
+        public abstract event Action<View, bool> Answered;
+
+        public bool QuestionAnswered { get; protected set; }
 
         public void SetLast()
         {

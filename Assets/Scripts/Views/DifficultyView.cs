@@ -13,6 +13,8 @@ namespace Views
         
         private ColorByDifficulty _color;
 
+        public Color Color => _color.Color;
+
         public void Render(string type)
         {
             text.text = type.ToUpper();
